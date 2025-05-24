@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Effectuation Framework Tool</title>
+  <style>
+    :root {
+      --primary: #3498db;
+      --secondary: #2c3e50;
+      --light: #ecf0f1;
+      --dark: #2c3e50;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background-color: #f5f8fa;
+      color: #333;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: var(--secondary);
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .sidebar h2 {
+      margin: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .new-overview-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .new-overview-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .saved-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .saved-item {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .saved-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .saved-item.active {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .delete-btn {
+      color: var(--danger);
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.7;
+      font-size: 16px;
+    }
+
+    .delete-btn:hover {
+      opacity: 1;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 300px;
+      box-sizing: border-box;
+    }
+
+    .save-btn {
+      background-color: rgb(8, 156, 13);
+      color: white;
+      border: none;
+      padding: 12px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      font-size: 16px;
+      transition: background 0.2s;
+      box-sizing: border-box;
+    }
+
+    .save-btn:disabled {
+      background-color: orange;
+      color: #fff8e1;
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .save-btn:not(:disabled):hover {
+      background-color: green;
+    }
+
+    .framework-container {
+      display: flex;
+      flex: 1;
+      gap: 20px;
+      min-height: 0;
+    }
+
+    .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .column-header {
+      background-color: var(--dark);
+      color: white;
+      padding: 12px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .column-description {
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .questions-toggle {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 13px;
+      margin: 0 0 8px 0;
+      text-align: left;
+      padding: 0;
+      display: block;
+    }
+
+    .questions-list {
+      background: #f4f7fa;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #444;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .questions-list ul {
+      margin: 0 0 0 18px;
+      padding: 0;
+    }
+
+    .questions-list li {
+      margin-bottom: 6px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow: inset 0 0 0 2px var(--primary);
+    }
+
+    .header {
+      font-size: 14px;
+      padding-bottom: 20px;
+    }
+
+    .sidebar-content {
+      margin-bottom: 20px;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .sidebar {
+        width: auto;
+        height: auto;
+      }
+
+      .framework-container {
+        flex-direction: column;
+      }
+
+      .column {
+        height: 300px;
+        margin-bottom: 20px;
+      }
+    }
+
+    .sidebar-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 20px;
+      background: var(--secondary);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    @media (max-width: 900px) {
+      .sidebar-bottom {
+        position: static;
+        box-shadow: none;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <h2>Effectuation</h2>
+    <div class="header">
+      <p>This is a tool to help you think through your potential partnerships.</p>
+      <a href="https://scholar.google.com/citations?user=4LmjS-kAAAAJ&hl=en&oi=sra" target="_blank"
+        style="color: lightblue;">Based on Saras Sarasvathy's Theory of Effectuation</a>
+    </div>
+    <div class="sidebar-content">
+      <label for="overviewTitle" style="margin-bottom:4px;display:block;">Overview Title</label>
+      <input type="text" id="overviewTitle" placeholder="Overview Title" style="width:100%;margin-bottom:8px;">
+      <button id="saveBtn" class="save-btn" disabled style="width:100%;margin-bottom:12px;">Fill out title</button>
+      <button id="newOverviewBtn" class="new-overview-btn" style="margin-bottom: 12px;width:100%;">+ New
+        Overview</button>
+      <h3>Saved Overviews</h3>
+      <ul id="savedList" class="saved-list">
+        <!-- Saved items will be populated here -->
+      </ul>
+    </div>
+
+    <div id="statusBar"></div>
+    <div class="sidebar-bottom">
+      <h3>Export Database</h3>
+      <button id="exportBtn">Export Database (JSON)</button>
+      <h3 style="margin-top:18px;">Import Database (JSON)</h3>
+      <input type="file" id="importInput" style="margin-top: 10px;">
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="framework-container">
+      <div class="column">
+        <div class="column-header">Means: Who I Am</div>
+        <div class="column-description">
+          Identify your identity, knowledge, and networks. What resources do you already have?
+          <button class="questions-toggle" type="button" data-part="means" style="margin-top:8px;">Show
+            Questions</button>
+        </div>
+        <div class="questions-list" id="meansQuestions" style="display:none"></div>
+        <textarea id="meansTextArea" placeholder="List your skills, knowledge, identity, and networks..."></textarea>
+      </div>
+
+      <div class="column">
+        <div class="column-header">Affordable Loss</div>
+        <div class="column-description">
+          What are you willing to put at risk? What can you afford to lose?
+          <button class="questions-toggle" type="button" data-part="loss" style="margin-top:8px;">Show
+            Questions</button>
+        </div>
+        <div class="questions-list" id="lossQuestions" style="display:none"></div>
+        <textarea id="lossTextArea"
+          placeholder="Determine what you can afford to lose rather than what you expect to gain..."></textarea>
+      </div>
+
+      <div class="column">
+        <div class="column-header">Partnerships</div>
+        <div class="column-description">
+          Who can you collaborate with? What pre-commitments can you secure?
+          <button class="questions-toggle" type="button" data-part="partnerships" style="margin-top:8px;">Show
+            Questions</button>
+        </div>
+        <div class="questions-list" id="partnershipsQuestions" style="display:none"></div>
+        <textarea id="partnershipsTextArea"
+          placeholder="Identify stakeholders who might commit resources to your venture..."></textarea>
+      </div>
+
+      <div class="column">
+        <div class="column-header">Leverage the Unexpected</div>
+        <div class="column-description">
+          How can you turn surprises and unexpected events into opportunities?
+          <button class="questions-toggle" type="button" data-part="contingencies" style="margin-top:8px;">Show
+            Questions</button>
+        </div>
+        <div class="questions-list" id="contingenciesQuestions" style="display:none"></div>
+        <textarea id="contingenciesTextArea"
+          placeholder="How can you embrace and leverage surprises rather than trying to avoid them..."></textarea>
+      </div>
+
+      <div class="column">
+        <div class="column-header">Control vs. Prediction</div>
+        <div class="column-description">
+          Focus on activities within your control rather than trying to predict the future.
+          <button class="questions-toggle" type="button" data-part="control" style="margin-top:8px;">Show
+            Questions</button>
+        </div>
+        <div class="questions-list" id="controlQuestions" style="display:none"></div>
+        <textarea id="controlTextArea"
+          placeholder="What actions can you take to control outcomes rather than predict them..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let currentOverviewId = null;
+    let overviews = [];
+
+    // Guiding questions for each part
+    const PART_QUESTIONS = {
+      means: [
+        "What are your core skills and strengths?",
+        "What unique knowledge or expertise do you possess?",
+        "Who is in your personal and professional network?",
+        "What resources (time, money, tools) do you already have?",
+        "What are your personal values and beliefs?",
+        "What past experiences have shaped your perspective?",
+        "What hobbies or interests could be relevant?",
+        "What motivates you to pursue this venture?",
+        "What are your most significant achievements?",
+        "How do others describe your capabilities?"
+      ],
+      loss: [
+        "What are you willing to risk for this venture?",
+        "What is the maximum amount of time, money, or effort you can afford to lose?",
+        "How will you measure if a loss is acceptable?",
+        "What is your fallback plan if things don't work out?",
+        "How much uncertainty are you comfortable with?",
+        "What non-monetary resources are you willing to invest?",
+        "How will you protect yourself from unacceptable losses?",
+        "What is the opportunity cost of pursuing this venture?",
+        "How will you track your losses and gains?",
+        "What would make you decide to stop or pivot?"
+      ],
+      partnerships: [
+        "Who could be a potential partner or collaborator?",
+        "What value can you offer to potential partners?",
+        "What commitments or resources can you secure from others?",
+        "Who shares your vision or goals?",
+        "How can you build trust with potential partners?",
+        "What skills or resources are you missing that others could provide?",
+        "How will you approach and engage potential partners?",
+        "What are the benefits of partnering for both sides?",
+        "How will you formalize agreements or commitments?",
+        "How will you handle conflicts or disagreements?"
+      ],
+      contingencies: [
+        "What surprises or unexpected events have you encountered?",
+        "How could you turn a recent setback into an opportunity?",
+        "What is your approach to handling uncertainty?",
+        "How do you typically respond to unexpected changes?",
+        "What resources can help you adapt to surprises?",
+        "How can you prepare for the unknown?",
+        "What lessons have you learned from past surprises?",
+        "How can you stay flexible in your approach?",
+        "Who can help you when things don't go as planned?",
+        "How can you use feedback from surprises to improve?"
+      ],
+      control: [
+        "What actions are fully within your control?",
+        "How can you influence outcomes directly?",
+        "What can you do today to move forward, regardless of predictions?",
+        "How will you measure your progress?",
+        "What habits or routines can help you stay on track?",
+        "How can you break down big goals into manageable steps?",
+        "What obstacles can you remove right now?",
+        "How will you stay focused on what you can control?",
+        "What support systems can help you maintain control?",
+        "How will you celebrate small wins along the way?"
+      ]
+    };
+
+    // Store answers in memory (not persisted)
+    const questionAnswers = {
+      means: [],
+      loss: [],
+      partnerships: [],
+      contingencies: [],
+      control: []
+    };
+
+    function renderQuestions(part) {
+      const questions = PART_QUESTIONS[part];
+      const container = document.getElementById(part + 'Questions');
+      const ul = document.createElement('ul');
+      questions.forEach(q => {
+        const li = document.createElement('li');
+        li.textContent = q;
+        ul.appendChild(li);
+      });
+      container.innerHTML = '';
+      container.appendChild(ul);
+    }
+
+    function setupQuestionToggles() {
+      document.querySelectorAll('.questions-toggle').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const part = btn.getAttribute('data-part');
+          const qDiv = document.getElementById(part + 'Questions');
+          const isShown = qDiv.style.display !== 'none';
+          if (isShown) {
+            qDiv.style.display = 'none';
+            btn.textContent = 'Show Questions';
+          } else {
+            renderQuestions(part);
+            qDiv.style.display = '';
+            btn.textContent = 'Hide Questions';
+          }
+        });
+      });
+    }
+
+    // Utility functions for localStorage CRUD
+    function saveOverviewsToStorage() {
+      localStorage.setItem('effectuation_overviews', JSON.stringify(overviews));
+    }
+
+    function loadOverviewsFromStorage() {
+      const data = localStorage.getItem('effectuation_overviews');
+      overviews = data ? JSON.parse(data) : [];
+    }
+
+    function setStatus(message, isError) {
+      const statusBar = document.getElementById('statusBar');
+      statusBar.textContent = message;
+      statusBar.style.color = isError ? 'var(--danger)' : 'var(--success)';
+      setTimeout(() => { statusBar.textContent = ''; }, 2000);
+    }
+
+    function sanitizeInput(str, maxLength = 1000) {
+      if (!str) return '';
+      return str.length > maxLength ? str.substring(0, maxLength) : str;
+    }
+    function validateTitle(title) {
+      return title && title.trim().length > 0;
+    }
+
+    function loadSavedOverviews() {
+      loadOverviewsFromStorage();
+      const savedList = document.getElementById('savedList');
+      savedList.innerHTML = '';
+      if (overviews.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'No saved overviews';
+        li.style.padding = '10px';
+        li.style.fontStyle = 'italic';
+        li.style.color = 'rgba(255,255,255,0.7)';
+        savedList.appendChild(li);
+        return;
+      }
+      overviews.forEach((overview, idx) => {
+        const li = document.createElement('li');
+        li.className = 'saved-item' + (currentOverviewId === overview.id ? ' active' : '');
+        li.innerHTML = `<span>${overview.title || 'Untitled'}</span>`;
+        li.addEventListener('click', () => loadOverview(overview.id));
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.innerHTML = '&times;';
+        delBtn.title = 'Delete overview';
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteOverview(overview.id);
+        });
+        li.appendChild(delBtn);
+        savedList.appendChild(li);
+      });
+    }
+
+    function createNewOverview() {
+      currentOverviewId = null;
+      document.getElementById('overviewTitle').value = '';
+      document.getElementById('meansTextArea').value = '';
+      document.getElementById('lossTextArea').value = '';
+      document.getElementById('partnershipsTextArea').value = '';
+      document.getElementById('contingenciesTextArea').value = '';
+      document.getElementById('controlTextArea').value = '';
+      // Remove active class from all items
+      document.querySelectorAll('.saved-item').forEach(item => {
+        item.classList.remove('active');
+      });
+    }
+
+    function saveOverview() {
+      const title = sanitizeInput(document.getElementById('overviewTitle').value, 100);
+      if (!validateTitle(title)) {
+        setStatus('Title is required.', true);
+        return;
+      }
+      const overview = {
+        id: currentOverviewId || Date.now().toString(),
+        title,
+        means: sanitizeInput(document.getElementById('meansTextArea').value),
+        loss: sanitizeInput(document.getElementById('lossTextArea').value),
+        partnerships: sanitizeInput(document.getElementById('partnershipsTextArea').value),
+        contingencies: sanitizeInput(document.getElementById('contingenciesTextArea').value),
+        control: sanitizeInput(document.getElementById('controlTextArea').value)
+      };
+      // Update or add
+      const idx = overviews.findIndex(o => o.id === overview.id);
+      if (idx !== -1) {
+        overviews[idx] = overview;
+        setStatus('Overview updated.', false);
+      } else {
+        overviews.push(overview);
+        setStatus('Overview saved.', false);
+      }
+      currentOverviewId = overview.id;
+      saveOverviewsToStorage();
+      loadSavedOverviews();
+    }
+
+    function loadOverview(id) {
+      loadOverviewsFromStorage();
+      const overview = overviews.find(o => o.id === id);
+      if (!overview) {
+        setStatus('Overview not found.', true);
+        return;
+      }
+      currentOverviewId = id;
+      document.getElementById('overviewTitle').value = overview.title;
+      document.getElementById('meansTextArea').value = overview.means;
+      document.getElementById('lossTextArea').value = overview.loss;
+      document.getElementById('partnershipsTextArea').value = overview.partnerships;
+      document.getElementById('contingenciesTextArea').value = overview.contingencies;
+      document.getElementById('controlTextArea').value = overview.control;
+      // Highlight active
+      loadSavedOverviews();
+    }
+
+    function deleteOverview(id) {
+      const idx = overviews.findIndex(o => o.id === id);
+      if (idx === -1) {
+        setStatus('Overview not found.', true);
+        return;
+      }
+      overviews.splice(idx, 1);
+      if (currentOverviewId === id) {
+        createNewOverview();
+      }
+      saveOverviewsToStorage();
+      loadSavedOverviews();
+      setStatus('Overview deleted.', false);
+    }
+
+    function exportOverviews() {
+      const dataStr = JSON.stringify(overviews, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'effectuation_overviews.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setStatus('Exported overviews as JSON.', false);
+    }
+
+    function importOverviews(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!Array.isArray(imported)) throw new Error('Invalid format');
+          // Merge: replace if id matches, add if new
+          imported.forEach(newO => {
+            const idx = overviews.findIndex(o => o.id === newO.id);
+            if (idx !== -1) {
+              overviews[idx] = newO;
+            } else {
+              overviews.push(newO);
+            }
+          });
+          saveOverviewsToStorage();
+          loadSavedOverviews();
+          setStatus('Imported overviews from file.', false);
+        } catch (err) {
+          setStatus('Failed to import: ' + err.message, true);
+        }
+      };
+      reader.readAsText(file);
+      // Reset input so same file can be imported again if needed
+      event.target.value = '';
+    }
+
+    function updateSaveButtonState() {
+      const title = document.getElementById('overviewTitle').value.trim();
+      const saveBtn = document.getElementById('saveBtn');
+      if (!title) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Fill out title';
+      } else {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Overview';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('saveBtn').addEventListener('click', saveOverview);
+      document.getElementById('overviewTitle').addEventListener('input', updateSaveButtonState);
+      document.getElementById('newOverviewBtn').addEventListener('click', createNewOverview);
+      document.getElementById('exportBtn').addEventListener('click', exportOverviews);
+      document.getElementById('importInput').addEventListener('change', importOverviews);
+      loadSavedOverviews();
+      updateSaveButtonState();
+      setupQuestionToggles();
+    });
+  </script>
+</body>
+
+</html>
