@@ -247,6 +247,12 @@
         height: 300px;
         margin-bottom: 20px;
       }
+
+      textarea {
+        min-height: 120px;
+        font-size: 16px;
+        padding: 12px;
+      }
     }
 
     .sidebar-bottom {
@@ -281,23 +287,26 @@
         Based on Saras Sarasvathy's Theory of Effectuation</a>
     </div>
     <div class="sidebar-content">
-      <label for="overviewTitle" style="margin-bottom:4px;display:block;">Overview Title</label>
       <input type="text" id="overviewTitle" placeholder="Overview Title" style="width:100%;margin-bottom:8px;">
       <button id="saveBtn" class="save-btn" disabled style="width:100%;margin-bottom:12px;">Fill out title</button>
       <button id="newOverviewBtn" class="new-overview-btn" style="margin-bottom: 12px;width:100%;">+ New
         Overview</button>
-      <h3>Saved Overviews</h3>
+      <p>Saved Overviews</p>
       <ul id="savedList" class="saved-list">
-        <!-- Saved items will be populated here -->
       </ul>
     </div>
 
     <div id="statusBar"></div>
     <div class="sidebar-bottom">
-      <h3>Export Database</h3>
-      <button id="exportBtn">Export Database (JSON)</button>
-      <h3 style="margin-top:18px;">Import Database (JSON)</h3>
-      <input type="file" id="importInput" style="margin-top: 10px;">
+      <div style="margin-bottom: 20px;">
+        <label>Export Database</label>
+        <button id="exportBtn">Export Database (JSON)</button>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label>Import Database (JSON)</label>
+        <input type="file" id="importInput">
+      </div>
     </div>
   </div>
 
@@ -505,8 +514,6 @@
       if (overviews.length === 0) {
         const li = document.createElement('li');
         li.textContent = 'No saved overviews';
-        li.style.padding = '10px';
-        li.style.fontStyle = 'italic';
         li.style.color = 'rgba(255,255,255,0.7)';
         savedList.appendChild(li);
         return;
